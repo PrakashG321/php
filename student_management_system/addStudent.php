@@ -14,28 +14,41 @@ if(isset($_POST['back'])){
 
 
 include "db.php";
+class AddStudent{
+    private $connection;
 
+    public function __construct() {
+        $db = Database::getInstance();
+        $this->connection = $db->connection;
+       
+    }
+    
+public function add($name, $email) {
+    $stmt = $this->connection->prepare("INSERT INTO students (name, email) VALUES (?,?)");
+    if($stmt){
+
+        $stmt->bind_param('ss',$name,$email);
+    
+        if($stmt->execute()){
+            echo "student added succesfully";
+            header("Location:viewstudent.php");
+         }else{
+            echo "student not added ";
+         }
+    
+     }
+
+    $stmt->close();
+}
+}
 
 if($_SERVER["REQUEST_METHOD"]=="POST"){
  $name=htmlspecialchars($_POST['name']);
  $email=htmlspecialchars($_POST['email']);
  
- 
+$add = new AddStudent();
+$message=$add->add($name,$email);
 
- $stmt= $connection->prepare("INSERT INTO students (name, email) VALUES (?,?)");
-
- if($stmt){
-
-    $stmt->bind_param('ss',$name,$email);
-
-    if($stmt->execute()){
-        echo "student added succesfully";
-        header("Location:viewstudent.php");
-     }else{
-        echo "student not added ".$sql.$connection->error;
-     }
-
- }
 }
 
 

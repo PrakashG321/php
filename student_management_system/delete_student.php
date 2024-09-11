@@ -8,32 +8,46 @@ if(isset($_POST['back'])){
     exit();
 }
 
+class DeleteStudent{
+private $connection;
+
+public function __construct() {
+    $db = Database::getInstance();
+    $this->connection = $db->connection;
+    
+}
+
+public function delete($id) {
+   
+$stmt = $this->connection->prepare("DELETE FROM students  WHERE id = ?");
+if (!$stmt) {
+    echo "Prepare failed: (" . $this->connection->errno . ") " . $this->connection->error;
+}
+
+$stmt->bind_param("i", $id);
+
+if (!$stmt->execute()) {
+    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+} else {
+    if ($stmt->affected_rows > 0) {
+        echo "Student Deleted successfully.";
+        header("Location:viewstudent.php");
+    } else {
+        echo "No changes made to the student record.";
+    }
+}
+
+$stmt->close();
+$this->connection->close();
+exit(); // Stop further execution
+}
+}
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_POST['id'];
-
-
-$stmt = $connection->prepare("DELETE FROM students  WHERE id = ?");
-    if (!$stmt) {
-        echo "Prepare failed: (" . $connection->errno . ") " . $connection->error;
-    }
-
-    $stmt->bind_param("i", $id);
-
-    if (!$stmt->execute()) {
-        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-    } else {
-        if ($stmt->affected_rows > 0) {
-            echo "Student Deleted successfully.";
-            header("Location:viewstudent.php");
-        } else {
-            echo "No changes made to the student record.";
-        }
-    }
-
-    $stmt->close();
-    $connection->close();
-    exit(); // Stop further execution
+$delete = new DeleteStudent($id);
+$message=$delete->delete($id);
 }
 ?>
 
@@ -52,7 +66,7 @@ $stmt = $connection->prepare("DELETE FROM students  WHERE id = ?");
 <label for="name">ID</label>
 <input type="text" name="id" >
 
-<input type="submit" value="Update">
+<input type="submit" value="Delete">
 
 
 </form>

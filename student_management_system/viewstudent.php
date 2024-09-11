@@ -15,8 +15,28 @@ if(isset($_POST['back'])){
 
 include "db.php";
 
-$sql="SELECT * FROM Students";
-$result= $connection->query($sql);
+class View{
+    private $connection;
+    
+    public function __construct() {
+        $db = Database::getInstance();
+        $this->connection = $db->connection;
+        
+    }
+
+    public function view(){
+        $sql="SELECT * FROM Students";
+       $result = $this->connection->query($sql);
+
+       return $result;
+
+    }
+}
+
+$view = new View();
+$result = $view->view();
+
+
 
 ?>
 <!DOCTYPE html>

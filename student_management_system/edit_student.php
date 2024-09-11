@@ -7,17 +7,20 @@ if(isset($_POST['back'])){
     exit();
 }
 
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
+class UpdateStudent{
+    private $connection;
 
+public function __construct() {
+    $db = Database::getInstance();
+    $this->connection = $db->connection;
     
+}
 
-    $stmt = $connection->prepare("UPDATE students SET name = ?, email = ? WHERE id = ?");
+public function update($id,$name,$email) {
+   
+    $stmt = $this->connection->prepare("UPDATE students SET name = ?, email = ? WHERE id = ?");
     if (!$stmt) {
-        echo "Prepare failed: (" . $connection->errno . ") " . $connection->error;
+        echo "Prepare failed: (" . $this->connection->errno . ") " . $this->connection->error;
     }
 
     $stmt->bind_param("ssi", $name, $email, $id);
@@ -34,8 +37,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->close();
-    $connection->close();
+    $this->connection->close();
     exit(); // Stop further execution
+}
+}
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id = $_POST['id'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+
+    $update= new UpdateStudent($id,$name,$email);
+    $message=$update->update($id,$name,$email);
+
+
+   
 }
 ?>
 
